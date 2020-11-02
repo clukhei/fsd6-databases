@@ -1,14 +1,38 @@
-    <h1 class ="mt-5">Playstore</h1>
-    <form action="/search" method="GET">
-        <div class="form-group d-flex mt-3">
-            <input required type="search" name="search" id="search" class= "form-control" placeholder="Search app..." >
-            <button type="submit" class= "btn btn-primary">Search</button>
-        </div>
-        
-    </form>
+<h1 class="mt-5">Playstore</h1>
+<form action="/search" method="GET">
+    <div class="form-group d-flex mt-3">
+        <input required type="search" name="search" id="search" class="form-control" placeholder="Search app...">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
 
-    {{#if searched}}
+</form>
 
+{{#if searched}}
     <h2>Your searched results for : {{ searched }}</h2>
+        {{#if recs}}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scole="col">Name</th>
+                    <th scole="col">Category</th>
+                    <th scole="col">Rating</th>
+                    <th scole="col">Installs</th>
+                </tr>
+            </thead>
 
-    {{/if}}
+            <tbody>
+                {{#each recs}}
+                <tr>
+                    <td>{{ this.name}}</td>
+                    <td>{{ this.category}}</td>
+                    <td>{{ this.rating}}</td>
+                    <td>{{ this.installs}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+
+        </table>
+        {{else}}
+        <div>Uh Oh! No apps found</div>
+        {{/if}}
+{{/if}}

@@ -17,7 +17,8 @@ const pool = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD, 
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 4,
-    timezone: '+08:00'
+    timezone: '+08:00',
+    //multipleStatements: true   //allow sql multiple statement
 })
 
 const startApp = async(app,pool) => {
@@ -26,7 +27,7 @@ const startApp = async(app,pool) => {
         //acquire a connection from the connection pool. Once acquired connection cannot be used by others
         const conn = await pool.getConnection()
 
-        console.log('Pinging database')
+        console.log('Pinging database...')
         await conn.ping()
 
         //release the connection
@@ -46,15 +47,40 @@ app.get("/", (req, res) => {
     res.type("text/html")
     res.render("index")
 })
+// SQL queries-- never ever use string concatenation for sql query
+// ? are placeholder
+const SQL_FIND_BY_NAME = 'SELECT * FROM apps WHERE name LIKE ? limit ?'
 
-app.get("/search", (req,res)=> {
+app.get("/search", async(req,res)=> {
     console.log(req.query.search)
     const searched = req.query.search
-    res.status(200)
-    res.type("text/html")
-    res.render("index", {
-        searched
-    })
+    //acquire connection from the pool
+    const conn= await pool.getConnection()
+
+    try{
+        //perform the query 
+        // const result = await conn.query(SQL_FIND_BY_NAME, [`%${searched}%`, 10])
+        // const recs = result[0]
+
+        //destructuring
+        const [recs, _ ] = await conn.query(SQL_FIND_BY_NAME, [`%${searched}%`, 10])
+        console.log(recs)
+        res.status(200)
+        res.type("text/html")
+        res.render("index", {
+            searched,
+            recs
+        })
+    
+    }catch(e){
+        console.log(e)
+    } finally {
+        //release connection after executing all queries in try block or catch block
+        // finally block will always be executed after try block
+        // if try block has a return, before return is executed, finally will be executed
+        conn.release()
+    }
+   
 })
 //start server
 startApp(app, pool)
