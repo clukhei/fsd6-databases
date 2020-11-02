@@ -50,12 +50,18 @@ app.get("/", (req, res) => {
 // SQL queries-- never ever use string concatenation for sql query
 // ? are placeholder
 const SQL_FIND_BY_NAME = 'SELECT * FROM apps WHERE name LIKE ? limit ? offset ?'
+const SQL_COUNT_FIND_BY_NAME = 'SELECT COUNT(*) AS namesCount FROM apps WHERE name LIKE ?'
 let offset = 0
+let recordsCount 
+let totalPagesPerSearch
+let currentPage
 let searchRecord 
+let prevButtonState = true
+let nextButtonState = true
 
 app.get("/search", async(req,res)=> {
     offset = 0 
-
+    currentPage = 1
     searchRecord = req.query.search
     //acquire connection from the pool
     const conn= await pool.getConnection()
@@ -64,13 +70,14 @@ app.get("/search", async(req,res)=> {
         //perform the query 
         // const result = await conn.query(SQL_FIND_BY_NAME, [`%${searched}%`, 10])
         // const recs = result[0]
-
         //destructuring
         const [recs, _ ] = await conn.query(SQL_FIND_BY_NAME, [`%${searchRecord}%`, 10, offset])
-
+        const [[countRes]] = await conn.query(SQL_COUNT_FIND_BY_NAME, [`%${searchRecord}%`])
+        //determine pagination number
+        recordsCount = countRes.namesCount //dummy number for searching games
+        totalPagesPerSearch = Math.ceil(recordsCount / 10)
         render(recs, searchRecord, res)
-        if (recs.length === 10) offset += 10 
-        console.log("search offset value ", offset)
+        console.log(currentPage, "the current page")
     }catch(e){
         console.log(e)
     } finally {
@@ -82,16 +89,17 @@ app.get("/search", async(req,res)=> {
    
 })
 app.get("/next", async(req,res)=> {
-    console.log("before next",offset)
-
+    offset = currentPage * 10
+    //set the new current page
+    if (currentPage < totalPagesPerSearch) {
+        currentPage += 1
+    } 
+    console.log(currentPage, "after pressing next")
     const conn= await pool.getConnection()
     try{
         const [recs, _ ] = await conn.query(SQL_FIND_BY_NAME, [`%${searchRecord}%`, 10, offset])
-
         render(recs, searchRecord,res)
-        if (recs.length === 10) offset += 10 
-        console.log("after clicking next",offset)
-     
+ 
     }catch(e){
         console.log(e)
     } finally {
@@ -100,15 +108,16 @@ app.get("/next", async(req,res)=> {
     
 })
 app.get("/prev", async(req,res)=> {
-    console.log("before clicking next", offset)
-    if (offset >= 10 ) offset -= 10
-    console.log("prev",offset)
+    console.log(totalPagesPerSearch)
+    if (currentPage > 1) {
+        currentPage -= 1
+    } 
+    offset = (currentPage -1) * 10
+    console.log(offset, "after pressing prev")
     const conn= await pool.getConnection()
     try{
         const [recs, _ ] = await conn.query(SQL_FIND_BY_NAME, [`%${searchRecord}%`, 10, offset])
-
         render(recs, searchRecord, res)
-
     }catch(e){
         console.log(e)
     } finally {
