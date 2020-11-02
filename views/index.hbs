@@ -1,0 +1,14 @@
+    <h1 class ="mt-5">Playstore</h1>
+    <form action="/search" method="GET">
+        <div class="form-group d-flex mt-3">
+            <input required type="search" name="search" id="search" class= "form-control" placeholder="Search app..." >
+            <button type="submit" class= "btn btn-primary">Search</button>
+        </div>
+        
+    </form>
+
+    {{#if searched}}
+
+    <h2>Your searched results for : {{ searched }}</h2>
+
+    {{/if}}
