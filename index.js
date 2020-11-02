@@ -49,11 +49,14 @@ app.get("/", (req, res) => {
 })
 // SQL queries-- never ever use string concatenation for sql query
 // ? are placeholder
-const SQL_FIND_BY_NAME = 'SELECT * FROM apps WHERE name LIKE ? limit ?'
+const SQL_FIND_BY_NAME = 'SELECT * FROM apps WHERE name LIKE ? limit ? offset ?'
+let offset = 0
+let searchRecord 
 
 app.get("/search", async(req,res)=> {
-    console.log(req.query.search)
-    const searched = req.query.search
+    offset = 0 
+
+    searchRecord = req.query.search
     //acquire connection from the pool
     const conn= await pool.getConnection()
 
@@ -63,15 +66,11 @@ app.get("/search", async(req,res)=> {
         // const recs = result[0]
 
         //destructuring
-        const [recs, _ ] = await conn.query(SQL_FIND_BY_NAME, [`%${searched}%`, 10])
-        console.log(recs)
-        res.status(200)
-        res.type("text/html")
-        res.render("index", {
-            searched,
-            recs
-        })
-    
+        const [recs, _ ] = await conn.query(SQL_FIND_BY_NAME, [`%${searchRecord}%`, 10, offset])
+
+        render(recs, searchRecord, res)
+        if (recs.length === 10) offset += 10 
+        console.log("search offset value ", offset)
     }catch(e){
         console.log(e)
     } finally {
@@ -82,5 +81,49 @@ app.get("/search", async(req,res)=> {
     }
    
 })
+app.get("/next", async(req,res)=> {
+    console.log("before next",offset)
+
+    const conn= await pool.getConnection()
+    try{
+        const [recs, _ ] = await conn.query(SQL_FIND_BY_NAME, [`%${searchRecord}%`, 10, offset])
+
+        render(recs, searchRecord,res)
+        if (recs.length === 10) offset += 10 
+        console.log("after clicking next",offset)
+     
+    }catch(e){
+        console.log(e)
+    } finally {
+        conn.release()
+    }
+    
+})
+app.get("/prev", async(req,res)=> {
+    console.log("before clicking next", offset)
+    if (offset >= 10 ) offset -= 10
+    console.log("prev",offset)
+    const conn= await pool.getConnection()
+    try{
+        const [recs, _ ] = await conn.query(SQL_FIND_BY_NAME, [`%${searchRecord}%`, 10, offset])
+
+        render(recs, searchRecord, res)
+
+    }catch(e){
+        console.log(e)
+    } finally {
+        conn.release()
+    }
+})
+
+const render = (recs, searchRecord, res) => {
+    res.status(200)
+    res.type("text/html")
+    res.render("index", {
+        searchRecord,
+        recs
+    }) 
+}
+
 //start server
 startApp(app, pool)

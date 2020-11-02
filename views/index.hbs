@@ -7,32 +7,40 @@
 
 </form>
 
-{{#if searched}}
-    <h2>Your searched results for : {{ searched }}</h2>
-        {{#if recs}}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scole="col">Name</th>
-                    <th scole="col">Category</th>
-                    <th scole="col">Rating</th>
-                    <th scole="col">Installs</th>
-                </tr>
-            </thead>
+{{#if searchRecord}}
+<h2>Your searched results for : {{ searchRecord }}</h2>
+{{#if recs}}
+<table class="table">
+    <thead>
+        <tr>
+            <th scole="col">Name</th>
+            <th scole="col">Category</th>
+            <th scole="col">Rating</th>
+            <th scole="col">Installs</th>
+        </tr>
+    </thead>
 
-            <tbody>
-                {{#each recs}}
-                <tr>
-                    <td>{{ this.name}}</td>
-                    <td>{{ this.category}}</td>
-                    <td>{{ this.rating}}</td>
-                    <td>{{ this.installs}}</td>
-                </tr>
-                {{/each}}
-            </tbody>
+    <tbody>
+        {{#each recs}}
+        <tr>
+            <td>{{ this.name}}</td>
+            <td>{{ this.category}}</td>
+            <td>{{ this.rating}}</td>
+            <td>{{ this.installs}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
 
-        </table>
-        {{else}}
-        <div>Uh Oh! No apps found</div>
-        {{/if}}
+</table>
+<div class="d-flex justify-content-between">
+    <form action="/prev" method="GET">
+        <button class="btn btn-outline-primary" type="submit">Previous</button>
+    </form>
+    <form action="/next" method="GET">
+        <button class="btn btn-outline-primary" type="submit">Next</button>
+    </form>
+</div>
+{{else}}
+<div>Uh Oh! No apps found</div>
+{{/if}}
 {{/if}}
