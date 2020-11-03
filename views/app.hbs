@@ -1,0 +1,9 @@
+<h1>Playstore list</h1>
+<ul>
+{{#each recs}}
+<li>
+    <a href="/v1/app/{{this.app_id}}">{{this.name}}</a>
+</li>
+
+{{/each}}
+</ul>
