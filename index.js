@@ -23,7 +23,14 @@ const pool = mysql.createPool({
     //multipleStatements: true   //allow sql multiple statement
 })
 const router = require('./apps')(pool)
-app.use("/v1",router)
+app.get('/', (req,res) => {
+    res.status(200)
+    res.type("text/html")
+    res.render("index")
+})
+
+app.use("/",router)
+
 
 const startApp = async(app,pool) => {
 

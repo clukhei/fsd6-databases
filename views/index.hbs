@@ -1,5 +1,5 @@
 <h1 class="mt-5">Playstore</h1>
-<form action="/v1/search" method="GET">
+<form action="/search" method="GET">
     <div class="form-group d-flex mt-3">
         <input required type="search" name="q" id="search" class="form-control" placeholder="Search app...">
         <button type="submit" class="btn btn-primary">Search</button>
@@ -37,14 +37,14 @@
 <table>
     <tr>
         <td>
-            <form method="GET" action="/v1/search">
+            <form method="GET" action="/search">
                 <input type="hidden" name="q" value="{{q}}">
                 <input type="hidden" name="offset" value="{{prevOffset}}">
                 <button type="submit">Previous</button>
             </form>
         </td>
         <td>
-            <form method="GET" action="/v1/search">
+            <form method="GET" action="/search">
                 <input type="hidden" name="q" value="{{q}}">
                 <input type="hidden" name="offset" value="{{nextOffset}}">
                 <button type="submit">Next</button>
