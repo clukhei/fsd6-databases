@@ -33,6 +33,7 @@ const r = function (p, r) {
     
 
 	router.get("/app", async (req, res) => {
+        console.log(req.baseUrl)
         
 		try {
             const recs = await getAppList([10,10])
@@ -47,13 +48,13 @@ const r = function (p, r) {
 	});
 
 	router.get("/app/:appId", async (req, res) => {
-		const conn = await pool.getConnection();
+		
 		const appId = req.params.appId;
 		console.log(appId);
 
 		try {
-			const results = await conn.query(SQL_GET_BY_ID, [appId]);
-			const recs = results[0][0];
+			const results = await getAppById([appId]);
+			const recs = results[0];
 			console.log(recs.app_id);
 
 			res.status(200);
@@ -65,10 +66,10 @@ const r = function (p, r) {
 				root,
 			});
 		} catch (e) {
-			console.log(e);
-		} finally {
-			conn.release();
-		}
+			res.status(500);
+			res.type("text/html");
+			res.send(JSON.stringify(e));
+		} 
 	});
 
 	router.get("/search", async (req, res) => {
