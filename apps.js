@@ -5,9 +5,11 @@ const SQL_COUNT_FIND_BY_NAME = 'SELECT COUNT(*) AS namesCount FROM apps WHERE na
 const SQL_GET_NAME_ID = 'SELECT app_id, name FROM playstore.apps limit ? offset ?'
 const SQL_GET_BY_ID = 'SELECT * FROM playstore.apps WHERE app_id = ?'
 
-const r = function(p) {
+const r = function(p, r) {
     const router = express.Router()
     const pool = p
+    const root = r 
+    console.log(root)
     router.get('/app', async(req,res) => {
         const conn= await pool.getConnection()
         try{
@@ -17,7 +19,7 @@ const r = function(p) {
             console.log(recs)
             res.status(200)
             res.type("text/html")
-            res.render("app", {recs})
+            res.render("app", {recs, root})
             
         } catch (e){
             res.status(500)
@@ -43,7 +45,8 @@ const r = function(p) {
             console.log("before render")
             res.render('record', {
                 name: recs.name,
-                id: recs.app_id
+                id: recs.app_id,
+                root
             })
         }catch(e) {
             console.log(e)
@@ -75,7 +78,8 @@ const r = function(p) {
             recs,
             q,
             prevOffset: Math.max(0, offset - limit),
-            nextOffset: offset + limit
+            nextOffset: offset + limit,
+            root
     
     
         }) 

@@ -22,14 +22,15 @@ const pool = mysql.createPool({
     timezone: '+08:00',
     //multipleStatements: true   //allow sql multiple statement
 })
-const router = require('./apps')(pool)
+const root = "/v1"
+const router = require('./apps')(pool, root)
 app.get('/', (req,res) => {
     res.status(200)
     res.type("text/html")
-    res.render("index")
+    res.render("index", {root})
 })
 
-app.use("/",router)
+app.use("/v1",router)
 
 
 const startApp = async(app,pool) => {
